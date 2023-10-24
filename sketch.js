@@ -1,64 +1,99 @@
-// a simple game where you click to drop a ball and 
-// try to get as many balls as possible on the spinning shape
-// move the mouse up and down to change the rotation speed of the shape
-// use the right and left keys to make the shape larger or smaller
+//Initialize Variables
+let dateSprite; //Sprite for Date Box
+let ageSprite; //Sprite for Age Box
+let bloodSugar; //Number for blood sugar
+let font; //Variable for custom font
+let month = []; //Array for each month 
+let day = []; //Max days in each month
+let year = 2012; //Year variable
+let whatMonth = 4; //initial month pulled from month[]
+let whatDay = 25; //intial starting day
+let age = 10; //initial age
 
-let spinningShape;
-let highScore = 0;
+//preload font and images for sprites
+function preload() {
+
+    //load custom font
+    font = loadFont("assets/fonts/ARCADECLASSIC.TTF");
+}
+
 
 function setup() {
+
+    //create fullscreen canvas
     let canvas = new Canvas("fullscreen");
 
-    world.gravity.y = 10;
+    //set all text to custom font
+    textFont(font);
 
-    // this sprite can be created on a single line, but it's easier to read this way:
-	spinningShape = new Sprite();
-	spinningShape.width = canvas.width/5;
-	spinningShape.height = spinningShape.width;
-    spinningShape.collider = "kinematic";
+    //set array of months
+    month = 
+    ["Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-    textFont("Courier", 24);
+    //set array of max days in each month
+    day =
+    [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+    //run chooseDay function every 1/4 second
+    let dayInterval = setInterval(chooseDay, 250);
 }
+
 
 function draw() {
 
-    // try the game without this line :)
+    //clear screen of all sprites
     clear();
 
-    // the map function translates a value from one range to another
-    // https://p5js.org/reference/#/p5/map
-    spinningShape.rotationSpeed = map(mouse.y, 0, canvas.height, -10, 10);
+    //create dateSprite box
+    dateSprite = new Sprite();
+    dateSprite.width = windowWidth/6;
+    dateSprite.height = windowHeight/8;
+    dateSprite.x = dateSprite.width/2;
+    dateSprite.y = dateSprite.height/2;
+    dateSprite.stroke = 50;
+    dateSprite.color = "white";
+    dateSprite.text = month[whatMonth] + "    " + whatDay + "    " + year;
+    dateSprite.textSize = 40;
+    dateSprite.collider = "s";
 
-    // create a ball when the mouse is clicked
-    // https://p5play.org/learn/input_devices.html
-    if (mouse.presses()) {
-        let ball = new Sprite(mouse.x, -20, 20);
-        // make the ball resist rolling when it touches the spinning shape
-        // https://p5play.org/learn/sprite.html?page=9
-        ball.rotationDrag = 10;
-    }
+    //create ageSprite box
+    ageSprite = new Sprite();
+    ageSprite.width = windowWidth/6;
+    ageSprite.height = windowHeight/10;
+    ageSprite.x = ageSprite.width/2;
+    ageSprite.y = dateSprite.height + ageSprite.height/2;
+    ageSprite.stroke = 50;
+    ageSprite.color = "white";
+    ageSprite.text = "Age     " + age;
+    ageSprite.textSize = 40;
+    ageSprite.collider = "s";
 
-    // make the spinning shape larger or smaller using the keyboard
-    // note the difference between presses (above) and pressing (here)
-    if (kb.pressing('right')) {
-        spinningShape.width += 10;
-    } else if (kb.pressing('left')) {
-        spinningShape.width -= 10;
-    }
-
-    // loop through the allSprites array and see how many are above the center of the screen
-    let currentScore = 0;
-    for (let sprite of allSprites) {
-        if (sprite.y < canvas.height/2) {
-            currentScore++;
-            if (currentScore > highScore) {
-                highScore = currentScore;
-            }
-        }
-    }
-
-    // display the score (minus 1 so it doesn't count the spinning shape)
-    text("BALLS: " + (currentScore-1), 40, 60);
-    text("HIGH:  " + (highScore-1), 40, 86);
-
+    
 }
+
+//increase days/month/year
+function chooseDay() {
+
+    //increase day
+    whatDay++;
+
+    //if day is higher than max number of days in the month, reset to 1 and increase month
+    if (whatDay > day[whatMonth]) {
+        whatMonth++;
+        whatDay = 1;
+        //if past Dec, reset to Jan 1 and increase year
+        if (whatMonth == 12) {
+            whatMonth = 0;
+            whatDay = 1;
+            year++;
+        }
+        }
+
+    //if birthday, increase age
+    if (whatDay == 5 && whatMonth == 5) {
+        age++;
+    }
+}
+
+
+
