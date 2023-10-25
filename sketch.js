@@ -9,10 +9,11 @@ let fundsSprite; //Sprite for Funds Box
 let currentPriceSprite; //Sprite for Current Price Box
 
 //Changing Variables
-let bloodSugar; //Number for blood sugar
+let bloodSugar = 135; //Number for blood sugar
 let news; //Current news array
-let funds; //Current funds player has
-let currentPriceInsulin; //Current price of insulin (changes);
+let funds = 1000; //Current funds player has
+let insulinPriceArray = [];; //Current price of insulin array;
+let insulinPrice = 271; //value of current price of insulin for year
 
 //other
 let font; //Variable for custom font
@@ -22,7 +23,7 @@ let year = 2012; //Year variable
 let whatMonth = 4; //initial month pulled from month[]
 let whatDay = 25; //intial starting day
 let age = 10; //initial age
-
+let randomArticle = 0;
 //preload font and images for sprites
 function preload() {
 
@@ -47,6 +48,19 @@ function setup() {
     day =
     [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
+    //price of insulin from 2013-2021
+    insulinPriceArray = [271, 332, 404, 471, 504, 527, 540, 541, 518, 499];
+
+
+    //news titles
+    news = [
+    "Medical Costs for Youth with Diabetes More Than $9,000 a Year, CDC study finds annual cost of care is six times higher than for young people without diabetes",
+    "Insulin's High Cost Leads To Lethal Rationing",
+    "People with diabetes account for $1 of every $4 spent on health care in the U.S.",
+
+     ]
+
+    
     //run chooseDay function every 1/4 second
     let dayInterval = setInterval(chooseDay, 250);
 }
@@ -89,10 +103,12 @@ function draw() {
     bloodSugarSprite.y = bloodSugarSprite.height/2;
     bloodSugarSprite.strokeWeight = 5;
     bloodSugarSprite.color = "white";
-    bloodSugarSprite.text = bloodSugar + " mg/dL";
+    bloodSugarSprite.text = bloodSugar + "      mg/dL";
     bloodSugarSprite.textSize = 40;
     bloodSugarSprite.collider = "s";
 
+
+    //FIX TEXT
     //create newsSprite box
     newsSprite = new Sprite();
     newsSprite.width = windowWidth/4;
@@ -101,8 +117,8 @@ function draw() {
     newsSprite.y = newsSprite.height/2;
     newsSprite.strokeWeight = 5;
     newsSprite.color = "white";
-    newsSprite.text = news;
-    newsSprite.textSize = 40;
+    //text(news[randomArticle], newsSprite.x + newsSprite.width, newsSprite.y, newsSprite.width);
+    newsSprite.layer = 1;
     newsSprite.collider = "s";
 
     //create fundsSprite box
@@ -113,7 +129,7 @@ function draw() {
     fundsSprite.y = fundsSprite.height/2;
     fundsSprite.strokeWeight = 5;
     fundsSprite.color = "white";
-    fundsSprite.text = "$"+ funds;
+    fundsSprite.text = "$      "+ funds;
     fundsSprite.textSize = 40;
     fundsSprite.collider = "s";
 
@@ -125,9 +141,12 @@ function draw() {
     currentPriceSprite.y = fundsSprite.height + currentPriceSprite.height/2;
     currentPriceSprite.strokeWeight = 5;
     currentPriceSprite.color = "white";
-    currentPriceSprite.text = "Current Insulin Price: " + currentPriceInsulin;
+    currentPriceSprite.text = "Current Insulin Price:      " + insulinPrice;
     currentPriceSprite.textSize = 40;
     currentPriceSprite.collider = "s";
+
+
+
 }
 
 //increase days/month/year
@@ -139,6 +158,7 @@ function chooseDay() {
     //if day is higher than max number of days in the month, reset to 1 and increase month
     if (whatDay > day[whatMonth]) {
         whatMonth++;
+        insulinPrice = changeInsulinPrice();
         whatDay = 1;
         //if past Dec, reset to Jan 1 and increase year
         if (whatMonth == 12) {
@@ -155,4 +175,17 @@ function chooseDay() {
 }
 
 
+function changeInsulinPrice() {
 
+    let predictedPrice;
+
+    if (insulinPriceArray[year-2012] != NaN) {
+        return insulinPriceArray[year-2012];
+    }
+    else {
+       predictedPrice = 121.31 * log(year) + 277.47
+       return predictedPrice;
+    }
+
+
+}
