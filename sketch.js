@@ -1,7 +1,20 @@
 //Initialize Variables
+
+//Top menu UI
 let dateSprite; //Sprite for Date Box
 let ageSprite; //Sprite for Age Box
+let bloodSugarSprite; //Sprite for Blood Sugar Box
+let newsSprite; //Sprite for News Box
+let fundsSprite; //Sprite for Funds Box
+let currentPriceSprite; //Sprite for Current Price Box
+
+//Changing Variables
 let bloodSugar; //Number for blood sugar
+let news; //Current news array
+let funds; //Current funds player has
+let currentPriceInsulin; //Current price of insulin (changes);
+
+//other
 let font; //Variable for custom font
 let month = []; //Array for each month 
 let day = []; //Max days in each month
@@ -46,11 +59,11 @@ function draw() {
 
     //create dateSprite box
     dateSprite = new Sprite();
-    dateSprite.width = windowWidth/6;
-    dateSprite.height = windowHeight/8;
+    dateSprite.width = windowWidth/4;
+    dateSprite.height = windowHeight/12;
     dateSprite.x = dateSprite.width/2;
     dateSprite.y = dateSprite.height/2;
-    dateSprite.stroke = 50;
+    dateSprite.strokeWeight = 5;
     dateSprite.color = "white";
     dateSprite.text = month[whatMonth] + "    " + whatDay + "    " + year;
     dateSprite.textSize = 40;
@@ -58,17 +71,63 @@ function draw() {
 
     //create ageSprite box
     ageSprite = new Sprite();
-    ageSprite.width = windowWidth/6;
-    ageSprite.height = windowHeight/10;
+    ageSprite.width = windowWidth/4;
+    ageSprite.height = windowHeight/16;
     ageSprite.x = ageSprite.width/2;
     ageSprite.y = dateSprite.height + ageSprite.height/2;
-    ageSprite.stroke = 50;
+    ageSprite.strokeWeight = 5;
     ageSprite.color = "white";
     ageSprite.text = "Age     " + age;
     ageSprite.textSize = 40;
     ageSprite.collider = "s";
 
-    
+    //create bloodSugarSprite box
+    bloodSugarSprite = new Sprite();
+    bloodSugarSprite.width = windowWidth/4;
+    bloodSugarSprite.height = windowHeight/12;
+    bloodSugarSprite.x = bloodSugarSprite.width/2 + dateSprite.width;
+    bloodSugarSprite.y = bloodSugarSprite.height/2;
+    bloodSugarSprite.strokeWeight = 5;
+    bloodSugarSprite.color = "white";
+    bloodSugarSprite.text = bloodSugar + " mg/dL";
+    bloodSugarSprite.textSize = 40;
+    bloodSugarSprite.collider = "s";
+
+    //create newsSprite box
+    newsSprite = new Sprite();
+    newsSprite.width = windowWidth/4;
+    newsSprite.height = windowHeight/12;
+    newsSprite.x = newsSprite.width + bloodSugarSprite.x;
+    newsSprite.y = newsSprite.height/2;
+    newsSprite.strokeWeight = 5;
+    newsSprite.color = "white";
+    newsSprite.text = news;
+    newsSprite.textSize = 40;
+    newsSprite.collider = "s";
+
+    //create fundsSprite box
+    fundsSprite = new Sprite();
+    fundsSprite.width = windowWidth/4;
+    fundsSprite.height = windowHeight/12;
+    fundsSprite.x = fundsSprite.width + newsSprite.x;
+    fundsSprite.y = fundsSprite.height/2;
+    fundsSprite.strokeWeight = 5;
+    fundsSprite.color = "white";
+    fundsSprite.text = "$"+ funds;
+    fundsSprite.textSize = 40;
+    fundsSprite.collider = "s";
+
+    //create currentPriceSprite box
+    currentPriceSprite = new Sprite();
+    currentPriceSprite.width = windowWidth/4;
+    currentPriceSprite.height = windowHeight/16;
+    currentPriceSprite.x = windowWidth - currentPriceSprite.width/2;
+    currentPriceSprite.y = fundsSprite.height + currentPriceSprite.height/2;
+    currentPriceSprite.strokeWeight = 5;
+    currentPriceSprite.color = "white";
+    currentPriceSprite.text = "Current Insulin Price: " + currentPriceInsulin;
+    currentPriceSprite.textSize = 40;
+    currentPriceSprite.collider = "s";
 }
 
 //increase days/month/year
