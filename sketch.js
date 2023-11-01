@@ -11,9 +11,11 @@ let currentPriceSprite; //Sprite for Current Price Box
 //Changing Variables
 let bloodSugar = 135; //Number for blood sugar
 let news; //Current news array
-let funds = 1000; //Current funds player has
+let funds = 100; //Current funds player has
 let insulinPriceArray = [];; //Current price of insulin array;
 let insulinPrice = 271; //value of current price of insulin for year
+let importantPromptArray;
+let normalPromptArray;
 
 //other
 let font; //Variable for custom font
@@ -23,12 +25,21 @@ let year = 2012; //Year variable
 let whatMonth = 4; //initial month pulled from month[]
 let whatDay = 25; //intial starting day
 let age = 10; //initial age
-let randomArticle = 0;
+let randomArticle = 0; //set first article
+let newsStart = 0; //beginning value for news substring
+let newsLength = 15; //length of news substring
+let currentNewsString; //substring of current news
+let randomArticleBuffer; //value to hold next article
+let dayInterval;
+let newsInterval;
+let bloodSugarInterval;
+let debtShown = false;
+
 //preload font and images for sprites
 function preload() {
 
     //load custom font
-    font = loadFont("assets/fonts/ARCADECLASSIC.TTF");
+    font = loadFont("assets/fonts/Broken Console Regular.TTF");
 }
 
 
@@ -54,22 +65,14 @@ function setup() {
 
     //news titles
     news = [
-    "Medical Costs for Youth with Diabetes More Than $9,000 a Year, CDC study finds annual cost of care is six times higher than for young people without diabetes",
+    "Medical Costs for Youth with Diabetes More Than $9,000 a Year, CDC study finds annual cost of care is six times higher than for young people without diabetes  ",
     "Insulin's High Cost Leads To Lethal Rationing",
     "People with diabetes account for $1 of every $4 spent on health care in the U.S.",
 
-     ]
+    ]
+
 
     
-    //run chooseDay function every 1/4 second
-    let dayInterval = setInterval(chooseDay, 250);
-}
-
-
-function draw() {
-
-    //clear screen of all sprites
-    clear();
 
     //create dateSprite box
     dateSprite = new Sprite();
@@ -79,10 +82,10 @@ function draw() {
     dateSprite.y = dateSprite.height/2;
     dateSprite.strokeWeight = 5;
     dateSprite.color = "white";
-    dateSprite.text = month[whatMonth] + "    " + whatDay + "    " + year;
     dateSprite.textSize = 40;
     dateSprite.collider = "s";
-
+ 
+     
     //create ageSprite box
     ageSprite = new Sprite();
     ageSprite.width = windowWidth/4;
@@ -91,10 +94,9 @@ function draw() {
     ageSprite.y = dateSprite.height + ageSprite.height/2;
     ageSprite.strokeWeight = 5;
     ageSprite.color = "white";
-    ageSprite.text = "Age     " + age;
     ageSprite.textSize = 40;
     ageSprite.collider = "s";
-
+ 
     //create bloodSugarSprite box
     bloodSugarSprite = new Sprite();
     bloodSugarSprite.width = windowWidth/4;
@@ -103,12 +105,10 @@ function draw() {
     bloodSugarSprite.y = bloodSugarSprite.height/2;
     bloodSugarSprite.strokeWeight = 5;
     bloodSugarSprite.color = "white";
-    bloodSugarSprite.text = bloodSugar + "      mg/dL";
     bloodSugarSprite.textSize = 40;
     bloodSugarSprite.collider = "s";
-
-
-    //FIX TEXT
+ 
+ 
     //create newsSprite box
     newsSprite = new Sprite();
     newsSprite.width = windowWidth/4;
@@ -117,10 +117,9 @@ function draw() {
     newsSprite.y = newsSprite.height/2;
     newsSprite.strokeWeight = 5;
     newsSprite.color = "white";
-    //text(news[randomArticle], newsSprite.x + newsSprite.width, newsSprite.y, newsSprite.width);
-    newsSprite.layer = 1;
     newsSprite.collider = "s";
-
+    newsSprite.textSize = 40;
+ 
     //create fundsSprite box
     fundsSprite = new Sprite();
     fundsSprite.width = windowWidth/4;
@@ -129,10 +128,9 @@ function draw() {
     fundsSprite.y = fundsSprite.height/2;
     fundsSprite.strokeWeight = 5;
     fundsSprite.color = "white";
-    fundsSprite.text = "$      "+ funds;
     fundsSprite.textSize = 40;
     fundsSprite.collider = "s";
-
+ 
     //create currentPriceSprite box
     currentPriceSprite = new Sprite();
     currentPriceSprite.width = windowWidth/4;
@@ -141,11 +139,44 @@ function draw() {
     currentPriceSprite.y = fundsSprite.height + currentPriceSprite.height/2;
     currentPriceSprite.strokeWeight = 5;
     currentPriceSprite.color = "white";
-    currentPriceSprite.text = "Current Insulin Price:      " + insulinPrice;
-    currentPriceSprite.textSize = 40;
+    currentPriceSprite.textSize = 20;
     currentPriceSprite.collider = "s";
 
+    //create transparent overlay for start game
+    startGameSprite = new Sprite();
+    startGameSprite.width = windowWidth;
+    startGameSprite.height = windowHeight;
+    startGameSprite.color = color(125, 125, 125, 200);
+    startGameSprite.collider = "s";
+    startGameSprite.text = "Start";
+    startGameSprite.textSize = 40;
+}
 
+
+function draw() {
+
+    //clear screen of all sprites
+    clear();
+
+    //when startGame is pressed, run startGame function
+    if (startGameSprite.mouse.pressing()) {
+        startGame();
+    }
+
+    //change date text
+    dateSprite.text = month[whatMonth] + "   " + whatDay + "   " + year;
+
+    //change age text
+    ageSprite.text = "Age:  " + age;
+
+    //change bloodSugar text
+    bloodSugarSprite.text = bloodSugar + "   mg/dL";
+
+    //change fund text
+    fundsSprite.text = "$   "+ funds;
+
+    //change currentPrice text
+    currentPriceSprite.text = "Current Insulin Price:  $" + insulinPrice;
 
 }
 
@@ -157,8 +188,20 @@ function chooseDay() {
 
     //if day is higher than max number of days in the month, reset to 1 and increase month
     if (whatDay > day[whatMonth]) {
+        
+        //increase month
         whatMonth++;
+
+        //select a new article to read once current one ends
+        randomArticleBuffer = floor(random(news.length));
+
+        //pay insulin price
+        payInsulin();
+
+        //change insulin price
         insulinPrice = changeInsulinPrice();
+
+        //reset to first day of month
         whatDay = 1;
         //if past Dec, reset to Jan 1 and increase year
         if (whatMonth == 12) {
@@ -174,18 +217,96 @@ function chooseDay() {
     }
 }
 
-
+//change insulin price according to https://healthcostinstitute.org/hcci-originals-dropdown/all-hcci-reports/https-healthcostinstitute-org-hcci-research-insulin-prices-in-esi-nearly-doubled-from-2012-2021-with-effects-of-emerging-biosimilars-evident-in-recent-years
 function changeInsulinPrice() {
 
     let predictedPrice;
 
+    //grab predicted price from array
     if (insulinPriceArray[year-2012] != NaN) {
         return insulinPriceArray[year-2012];
     }
+    //use function to predict price
     else {
        predictedPrice = 121.31 * log(year) + 277.47
        return predictedPrice;
     }
 
+
+}
+
+//change news article and move text across screen
+function changeNews() {
+
+    //set currentNewsString as a substring as a news article
+    currentNewsString = news[randomArticle].substring(newsStart, newsLength);
+
+    //if there is substring, move text over by one letter
+     if (currentNewsString.length =! 0) {
+         newsStart++;
+         newsLength++;
+    //if text is empty, reset currentNewsString and grab new article
+     if (currentNewsString.length == 0){
+         newsStart = 0;
+         newsLength = 15;
+         randomArticle = randomArticleBuffer;
+     }
+     newsSprite.text = currentNewsString;
+    
+}
+}
+
+//increase bloodSugar by random amount
+function bloodSugarIncrease() {
+
+    let randomIncrease = floor(random(20));
+
+    bloodSugar += randomIncrease;
+
+}
+
+//decrease bloodSugar by random amount
+function bloodSugarDecrease() {
+
+    let randomDecrease = floor(random(30));
+
+    bloodSugar -= randomDecrease;
+
+}
+
+//pay insulinPrice every month with money from funds
+function payInsulin() {
+
+    funds -= insulinPrice;
+
+}
+
+//starts the game
+function startGame() {
+
+    startGameSprite.remove();
+
+    startIntervals();
+
+}
+
+
+function startIntervals() {
+
+    //run chooseDay function every second
+    dayInterval = setInterval(chooseDay, 1000);
+    //run changeNews function every 1/4 second
+    newsInterval = setInterval(changeNews, 250);
+
+    //run bloodSugarIncrease function every 1/2 second
+    bloodSugarInterval = setInterval(bloodSugarIncrease, 500);
+
+}
+
+function stopIntervals() {
+
+    clearInterval(dayInterval);
+    clearInterval(newsInterval);
+    clearInterval(bloodSugarInterval);
 
 }
