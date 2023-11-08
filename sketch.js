@@ -8,6 +8,7 @@ let newsSprite; //Sprite for News Box
 let fundsSprite; //Sprite for Funds Box
 let currentPriceSprite; //Sprite for Current Price Box
 
+
 //Changing Variables
 let bloodSugar = 135; //Number for blood sugar
 let news; //Current news array
@@ -16,6 +17,14 @@ let insulinPriceArray = [];; //Current price of insulin array;
 let insulinPrice = 271; //value of current price of insulin for year
 let importantPromptArray;
 let normalPromptArray;
+
+//other Sprites
+let dontNeedInsulinSprite;
+let insulinArea;
+let backgroundSprite;
+let insulinGameBackground;
+let needleSprite;
+let insulinBottleSprite;
 
 //other
 let font; //Variable for custom font
@@ -34,6 +43,9 @@ let dayInterval;
 let newsInterval;
 let bloodSugarInterval;
 let debtShown = false;
+let insulinPopUp = false;
+let needleFilled = 0;
+let insulinGamePlaying = false;
 
 //preload font and images for sprites
 function preload() {
@@ -159,7 +171,7 @@ function draw() {
     clear();
 
     //when startGame is pressed, run startGame function
-    if (startGameSprite.mouse.pressing()) {
+    if (startGameSprite.mouse.presses()) {
         startGame();
     }
 
@@ -178,6 +190,24 @@ function draw() {
     //change currentPrice text
     currentPriceSprite.text = "Current Insulin Price:  $" + insulinPrice;
 
+    if (dontNeedInsulinSprite.mouse.presses()) {
+        insulinPopUp = false;
+        dontNeedInsulinSprite.remove();
+    }
+
+    if (insulinArea.mouse.presses()) {
+        insulinClicked();
+    }
+
+    if (insulinGamePlaying == true) {
+        needleSprite.x = mouse.x;
+        needleSprite.y = mouse.y;
+        needleSprite.rotateTowards(mouse, 0.1, 0);
+
+        if (needleSprite.overLaps(insulinBottleSprite)) {
+            
+        }
+    }
 }
 
 //increase days/month/year
@@ -308,5 +338,55 @@ function stopIntervals() {
     clearInterval(dayInterval);
     clearInterval(newsInterval);
     clearInterval(bloodSugarInterval);
+
+}
+
+function insulinClicked() {
+
+    if (insulinPopUp == false) {
+        if(bloodSugar <= 170) {
+            dontNeedInsulinSprite = new Sprite();
+            dontNeedInsulinSprite.width = windowWidth/3;
+            dontNeedInsulinSprite.height = windowHeight/4;
+            dontNeedInsulinSprite.x = windowWidth/2;
+            dontNeedInsulinSprite.y = windowHeight/3;
+            dontNeedInsulinSprite.color = color(125, 125, 125, 200);
+            dontNeedInsulinSprite.collider = "s";
+            dontNeedInsulinSprite.strokeWeight = 4;
+            dontNeedInsulinSprite.stroke = "white";
+            dontNeedInsulinSprite.text = "I don't think I need that right now";
+            dontNeedInsulinSprite.textSize = 40;
+            insulinPopUp = true;
+        }
+    }
+
+    if (insulinPopUp == true && bloodSugar > 170) {
+        dontNeedInsulinSprite.remove();
+        insulinGame();
+    }
+}
+
+function insulinGame() {
+
+
+    insulinGameBackground = new Sprite();
+    insulinGameBackground.height = windowHeight;
+    insulinGameBackground.width = windowWidth;
+    insulinGameBackground.color = color(125, 125, 125, 200);
+    insulinGameBackground.collider = "s";
+    insulinGameBackground.textSize = 40;
+
+    needleSprite = new Sprite();
+    needleSprite.img = "assets/img/NeedleBase.png";
+    needleSprite.addAni("pull", "assets/anim/needlePullAni.png", 38);
+    needleSprite.pull.rewind();
+    needleSprite.pull.noLoop();
+
+    insulinBottleSprite = new Sprite();
+    //insulinBottleSprite = null;
+
+
+    insulinGamePlaying = true;
+    
 
 }
