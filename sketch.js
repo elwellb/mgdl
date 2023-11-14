@@ -9,6 +9,7 @@ let fundsSprite; //Sprite for Funds Box
 let currentPriceSprite; //Sprite for Current Price Box
 
 
+
 //Changing Variables
 let bloodSugar = 135; //Number for blood sugar
 let news; //Current news array
@@ -22,9 +23,11 @@ let normalPromptArray;
 let dontNeedInsulinSprite;
 let insulinArea;
 let backgroundSprite;
+let windowSprite;
 let insulinGameBackground;
 let needleSprite;
 let insulinBottleSprite;
+let currentAniFrame = 0;
 
 //other
 let font; //Variable for custom font
@@ -46,12 +49,16 @@ let debtShown = false;
 let insulinPopUp = false;
 let needleFilled = 0;
 let insulinGamePlaying = false;
+let windowAnimation;
 
 //preload font and images for sprites
 function preload() {
 
     //load custom font
     font = loadFont("assets/fonts/Broken Console Regular.TTF");
+
+    windowAnimation = loadAnimation("assets/anim/windowAni.png", {frameSize: [206, 100], frames: 197});
+ 
 }
 
 
@@ -83,8 +90,28 @@ function setup() {
 
     ]
 
-
+    //create windowSprite and animation
+    windowSprite = new Sprite();
+    windowSprite.ani = windowAnimation;
+    windowAnimation.play(196);
+    windowAnimation.frameDelay = 0.5;
+    windowAnimation.rewind();
+    windowSprite.width = 206;
+    windowSprite.height = 100;
+    windowSprite.collider = "s";
+    windowSprite.scale = 4;
+    windowSprite.y = windowHeight/2 - windowHeight/3;
     
+
+    //create main background sprite
+    backgroundSprite = new Sprite();
+    backgroundSprite.width = windowWidth;
+    backgroundSprite.height = windowHeight;
+    backgroundSprite.x = windowWidth/2;
+    backgroundSprite.y = windowHeight/2;
+    backgroundSprite.img = "assets/img/BackgroundSprite1.png";
+    backgroundSprite.collider = "s";
+    backgroundSprite.scale = 4;
 
     //create dateSprite box
     dateSprite = new Sprite();
@@ -162,6 +189,7 @@ function setup() {
     startGameSprite.collider = "s";
     startGameSprite.text = "Start";
     startGameSprite.textSize = 40;
+
 }
 
 
@@ -173,6 +201,11 @@ function draw() {
     //when startGame is pressed, run startGame function
     if (startGameSprite.mouse.presses()) {
         startGame();
+    }
+
+    if (windowAnimation.frame == 0) {
+        windowAnimation.play(196);
+        windowAnimation.rewind();
     }
 
     //change date text
@@ -190,24 +223,39 @@ function draw() {
     //change currentPrice text
     currentPriceSprite.text = "Current Insulin Price:  $" + insulinPrice;
 
+
+    if (insulinPopUp == true) {
     if (dontNeedInsulinSprite.mouse.presses()) {
         insulinPopUp = false;
         dontNeedInsulinSprite.remove();
     }
-
-    if (insulinArea.mouse.presses()) {
-        insulinClicked();
     }
 
+    //if the insulin area is clicked, run insulinClicked function
+   // if (insulinArea.mouse.presses()) {
+    //    insulinClicked();
+   // } }
+
+    //Insulin Game function
+    //make needle follow mouse
     if (insulinGamePlaying == true) {
         needleSprite.x = mouse.x;
         needleSprite.y = mouse.y;
         needleSprite.rotateTowards(mouse, 0.1, 0);
 
+        //
         if (needleSprite.overLaps(insulinBottleSprite)) {
-            
+            if (needleSprite.mouse.pressing()) {
+                needleSprite.frameDelay = 8;
+                needleSprite.play(currentAniFrame);
+                if (needleSprite.mouse.released()) {
+                    needleSprite.stop();
+                    currentAniFrame = needleSprite.frame;
+                }
+            }
         }
     }
+
 }
 
 //increase days/month/year
@@ -360,7 +408,7 @@ function insulinClicked() {
         }
     }
 
-    if (insulinPopUp == true && bloodSugar > 170) {
+    if (insulinPopUp == false && bloodSugar > 170) {
         dontNeedInsulinSprite.remove();
         insulinGame();
     }
@@ -381,12 +429,16 @@ function insulinGame() {
     needleSprite.addAni("pull", "assets/anim/needlePullAni.png", 38);
     needleSprite.pull.rewind();
     needleSprite.pull.noLoop();
+    needleSprite.layer = 2;
+    //needleSprite.offset.y = 
 
     insulinBottleSprite = new Sprite();
-    //insulinBottleSprite = null;
+    insulinBottleSprite.img = "assets/img/Insulin.png";
+    insulinBottleSprite.mirror.y = true;
+    insulinBottleSprite.x = windowWidth/2;
+    insulinBottleSprite.y = windowHeight/5;
 
 
     insulinGamePlaying = true;
     
-
 }
