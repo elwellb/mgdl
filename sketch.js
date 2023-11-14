@@ -50,6 +50,7 @@ let insulinPopUp = false;
 let needleFilled = 0;
 let insulinGamePlaying = false;
 let windowAnimation;
+let needleAnimation;
 
 //preload font and images for sprites
 function preload() {
@@ -58,7 +59,8 @@ function preload() {
     font = loadFont("assets/fonts/Broken Console Regular.TTF");
 
     windowAnimation = loadAnimation("assets/anim/windowAni.png", {frameSize: [206, 100], frames: 197});
- 
+    
+    needleAnimation = loadAnimation("assets/anim/needlePullAni.png", {frameSize: [14, 100], frames: 38});
 }
 
 
@@ -93,9 +95,9 @@ function setup() {
     //create windowSprite and animation
     windowSprite = new Sprite();
     windowSprite.ani = windowAnimation;
-    windowAnimation.play(196);
+    windowAnimation.stop();
+    windowAnimation.frame = 196;
     windowAnimation.frameDelay = 0.5;
-    windowAnimation.rewind();
     windowSprite.width = 206;
     windowSprite.height = 100;
     windowSprite.collider = "s";
@@ -190,6 +192,9 @@ function setup() {
     startGameSprite.text = "Start";
     startGameSprite.textSize = 40;
 
+    insulinArea = new Sprite();
+    insulinArea.x = -100;
+    insulinArea.y = -100;
 }
 
 
@@ -231,32 +236,35 @@ function draw() {
     }
     }
 
-    //if the insulin area is clicked, run insulinClicked function
-   // if (insulinArea.mouse.presses()) {
-    //    insulinClicked();
-   // } }
+    // if the insulin area is clicked, run insulinClicked function
+   if (insulinArea.mouse.presses()) {
+        insulinClicked();
+   } 
 
     //Insulin Game function
     //make needle follow mouse
     if (insulinGamePlaying == true) {
-        needleSprite.x = mouse.x;
-        needleSprite.y = mouse.y;
-        needleSprite.rotateTowards(mouse, 0.1, 0);
+        needleSprite.moveTowards(mouse, 0.1);
+        needleSprite.rotateTowards(mouse, 0.1, 90);
 
         //
-        if (needleSprite.overLaps(insulinBottleSprite)) {
-            if (needleSprite.mouse.pressing()) {
-                needleSprite.frameDelay = 8;
-                needleSprite.play(currentAniFrame);
-                if (needleSprite.mouse.released()) {
-                    needleSprite.stop();
-                    currentAniFrame = needleSprite.frame;
-                }
+       // if (needleSprite.overlaps(insulinBottleSprite)) {
+            if (mouse.pressing()) {
+                needleAnimation.rewind();
+                console.log("Left Mouse");
+            } else if (mouse.pressing("right")) {
+                needleAnimation.play();
+                console.log("Right Mouse");
+            } else {
+                needleAnimation.stop();
+            }
+
+            
             }
         }
-    }
+  // }
 
-}
+
 
 //increase days/month/year
 function chooseDay() {
@@ -364,6 +372,18 @@ function startGame() {
 
     startGameSprite.remove();
 
+    insulinArea = new Sprite();
+    insulinArea.x = windowWidth/2 + 650;
+    insulinArea.y = windowHeight/2 + 100;
+    insulinArea.scale = 3;
+    insulinArea.color = color(0,0);
+    insulinArea.strokeWeight = 0;
+    insulinArea.collider = "s";
+
+
+    windowAnimation.play(196);
+    windowAnimation.rewind();
+
     startIntervals();
 
 }
@@ -371,8 +391,8 @@ function startGame() {
 
 function startIntervals() {
 
-    //run chooseDay function every second
-    dayInterval = setInterval(chooseDay, 1000);
+    //run chooseDay function every 3.3 second
+    dayInterval = setInterval(chooseDay, 3300);
     //run changeNews function every 1/4 second
     newsInterval = setInterval(changeNews, 250);
 
@@ -409,7 +429,6 @@ function insulinClicked() {
     }
 
     if (insulinPopUp == false && bloodSugar > 170) {
-        dontNeedInsulinSprite.remove();
         insulinGame();
     }
 }
@@ -420,23 +439,30 @@ function insulinGame() {
     insulinGameBackground = new Sprite();
     insulinGameBackground.height = windowHeight;
     insulinGameBackground.width = windowWidth;
-    insulinGameBackground.color = color(125, 125, 125, 200);
+    insulinGameBackground.color = color(255, 255, 255, 230);
     insulinGameBackground.collider = "s";
     insulinGameBackground.textSize = 40;
+    insulinGameBackground.layer = 9;
 
     needleSprite = new Sprite();
-    needleSprite.img = "assets/img/NeedleBase.png";
-    needleSprite.addAni("pull", "assets/anim/needlePullAni.png", 38);
-    needleSprite.pull.rewind();
-    needleSprite.pull.noLoop();
-    needleSprite.layer = 2;
-    //needleSprite.offset.y = 
+    needleSprite.ani = needleAnimation;
+    needleSprite.width = 12;
+    needleSprite.height = 98;
+    needleAnimation.frame = 37;
+    needleAnimation.stop();
+    needleAnimation.noLoop();
+    needleSprite.layer = 10;
+    needleSprite.debug = true;
+    needleSprite.collider = "k";
+    needleSprite.scale = 5;
+    needleAnimation.frameDelay = 8;
+    needleSprite.offset.y = 150;
 
-    insulinBottleSprite = new Sprite();
-    insulinBottleSprite.img = "assets/img/Insulin.png";
-    insulinBottleSprite.mirror.y = true;
-    insulinBottleSprite.x = windowWidth/2;
-    insulinBottleSprite.y = windowHeight/5;
+    // insulinBottleSprite = new Sprite();
+    // insulinBottleSprite.img = "assets/img/Insulin.png";
+    // insulinBottleSprite.mirror.y = true;
+    // insulinBottleSprite.x = windowWidth/2;
+    // insulinBottleSprite.y = windowHeight/5;
 
 
     insulinGamePlaying = true;
