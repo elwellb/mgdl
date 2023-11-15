@@ -27,8 +27,11 @@ let windowSprite;
 let insulinGameBackground;
 let needleSprite;
 let insulinBottleSprite;
+let stomachSprite;
+let stomachBarrier;
 let currentAniFrame = 0;
-
+let popUp;
+let emptyBottle;
 //other
 let font; //Variable for custom font
 let month = []; //Array for each month 
@@ -51,6 +54,9 @@ let needleFilled = 0;
 let insulinGamePlaying = false;
 let windowAnimation;
 let needleAnimation;
+let bottleNumber;
+let insulinInBottle = 500;
+let randomChoice;
 //preload font and images for sprites
 function preload() {
 
@@ -91,6 +97,25 @@ function setup() {
     "People with diabetes account for $1 of every $4 spent on health care in the U.S.",
 
     ]
+
+    //create Group for popups
+    popUp = new Group();
+    popUp.width = windowWidth/2;
+    popUp.height = windowHeight/4;
+    popUp.x = windowWidth/2;
+    popUp.y = windowHeight/3;
+    popUp.color = color(125, 125, 125, 200);
+    popUp.collider = "s";
+    popUp.strokeWeight = 4;
+    popUp.stroke = "white";
+    popUp.textSize = 40;
+
+    emptyBottle = new Group();
+    emptyBottle.img = "assets/img/Insulin.png";
+    emptyBottle.collider = "n";
+    emptyBottle.debug = true;
+    emptyBottle.scale = 0.7;
+    emptyBottle.rotation = () => random(360);
 
     //create windowSprite and animation
     windowSprite = new Sprite();
@@ -236,6 +261,10 @@ function draw() {
     }
     }
 
+    if (popUp.mouse.presses()) {
+        popUp.removeAll();
+    }
+
     // if the insulin area is clicked, run insulinClicked function
    if (insulinArea.mouse.presses()) {
         insulinClicked();
@@ -246,28 +275,66 @@ function draw() {
     if (insulinGamePlaying == true) {
         needleSprite.moveTowards(mouse.x, mouse.y);
         needleSprite.rotateTowards(mouse, 0.1, 90);
+        insulinBarrier.text = round(insulinInBottle/5) + "%"
 
        if (insulinBottleSprite.overlapping(needleSprite)) {
-            if (mouse.pressing()) {
+            if (mouse.pressing() && insulinInBottle > 0) {
                 needleAnimation.rewind();
-                console.log("Left Mouse");
-            } else if (mouse.pressing("right")) {
+                if (needleAnimation.frame != 0) {
+                needleFilled++;
+                insulinInBottle--;
+                console.log(needleFilled);
+                }
+            } else if (mouse.pressing("right") && needleAnimation.frame != 37 && insulinInBottle < 500) {
                 needleAnimation.play();
-                console.log("Right Mouse");
-            } else {
-                needleAnimation.stop();
+                needleFilled--;
+                insulinInBottle++;
+            } 
+            else {
+            needleAnimation.stop();
+            }
             }
 
+        else if ((stomachSprite.overlapping(needleSprite) % 10 == 1) && mouse.pressing("right") && (needleAnimation.frame != 37)) {
+            needleAnimation.play();
+            bloodSugarDecrease();
+            needleFilled--;
+        }
+        else if (mouse.pressing("right")) {
+                needleAnimation.play();
+                if (needleAnimation.frame != 37) {
+                    needleFilled--;
+                    console.log(needleFilled);
+                }
+                if (insulinBottleSprite.overlapping(needleSprite)) {
+                    insulinInBottle++;
+                }
+        
+            } else {
+            needleAnimation.stop();
+            }
+
+            if (insulinInBottle < 0) {
+                
+                
+                if (needleAnimation.frame == 37) {
+                payInsulin();
+                insulinInBottle = 500;
+                newEmptyBottle();
+                closeGame();
+            }
+            }
             
             }
-        }
-   }
+
+        //if (bloodSugar >= 400) 
+            
+}
 
 
 
 //increase days/month/year
 function chooseDay() {
-
     //increase day
     whatDay++;
 
@@ -279,9 +346,6 @@ function chooseDay() {
 
         //select a new article to read once current one ends
         randomArticleBuffer = floor(random(news.length));
-
-        //pay insulin price
-        payInsulin();
 
         //change insulin price
         insulinPrice = changeInsulinPrice();
@@ -344,7 +408,7 @@ function changeNews() {
 //increase bloodSugar by random amount
 function bloodSugarIncrease() {
 
-    let randomIncrease = floor(random(20));
+    let randomIncrease = floor(random(15));
 
     bloodSugar += randomIncrease;
 
@@ -363,6 +427,14 @@ function bloodSugarDecrease() {
 function payInsulin() {
 
     funds -= insulinPrice;
+
+    if (funds <= insulinPrice) {
+        fundsSprite.textColor = "red";
+        let debtPopUp = new popUp.Sprite();
+        debtPopUp.text = "You will not be able to afford another bottle of Insulin until next month. Ration well."
+        debtPopUp.textSize = 20;
+        debtPopUp.width = windowWidth/1.5;
+    }
 
 }
 
@@ -412,17 +484,8 @@ function insulinClicked() {
 
     if (insulinPopUp == false) {
         if(bloodSugar <= 170) {
-            dontNeedInsulinSprite = new Sprite();
-            dontNeedInsulinSprite.width = windowWidth/3;
-            dontNeedInsulinSprite.height = windowHeight/4;
-            dontNeedInsulinSprite.x = windowWidth/2;
-            dontNeedInsulinSprite.y = windowHeight/3;
-            dontNeedInsulinSprite.color = color(125, 125, 125, 200);
-            dontNeedInsulinSprite.collider = "s";
-            dontNeedInsulinSprite.strokeWeight = 4;
-            dontNeedInsulinSprite.stroke = "white";
+            dontNeedInsulinSprite = new popUp.Sprite();
             dontNeedInsulinSprite.text = "I don't think I need that right now";
-            dontNeedInsulinSprite.textSize = 40;
             insulinPopUp = true;
         }
     }
@@ -474,7 +537,7 @@ function insulinGame() {
 
     //invisible barriers for sprite bottle
 
-    let insulinBarrier = new Sprite([
+    insulinBarrier = new Sprite([
         [insulinBottleSprite.x - insulinBottleSprite.width/2, insulinBottleSprite.y - insulinBottleSprite.height/2],
         [insulinBottleSprite.x - insulinBottleSprite.width/2, insulinBottleSprite.y + insulinBottleSprite.height/2],
         [insulinBottleSprite.x - insulinBottleSprite.width/3, insulinBottleSprite.y + insulinBottleSprite.height/2],
@@ -488,8 +551,23 @@ function insulinGame() {
     insulinBarrier.color = color(0,0);
     insulinBarrier.strokeWeight = 0;
     insulinBarrier.collider = "s";
+    insulinBarrier.textSize = 20;
 
+    stomachSprite = new Sprite();
+    stomachSprite.diameter = windowWidth;
+    stomachSprite.x = windowWidth/2;
+    stomachSprite.y = windowHeight*1.9;
+    stomachSprite.collider = "s";
+    stomachSprite.color = "bisque";
 
+    stomachBarrier = new Sprite();
+    stomachBarrier.diameter = stomachSprite.diameter - stomachSprite.diameter/50;
+    stomachBarrier.x = stomachSprite.x;
+    stomachBarrier.y = stomachSprite.y;
+    stomachBarrier.color = color(0,0);
+    stomachBarrier.strokeWeight = 0;
+    // stomachBarrier.debug = true;
+    stomachBarrier.collider = "s";
 
     dateSprite.collider = "n";
     fundsSprite.collider = "n";
@@ -500,5 +578,42 @@ function insulinGame() {
     bloodSugarSprite.collider = "n";    
 
     insulinGamePlaying = true;
+    
+}
+
+function closeGame() {
+
+    insulinBarrier.remove();
+    needleSprite.remove();
+    insulinBottleSprite.remove();
+    stomachSprite.remove();
+    stomachBarrier.remove();
+    insulinGameBackground.remove();
+
+    dateSprite.collider = "s";
+    fundsSprite.collider = "s";
+    ageSprite.collider = "s";
+    insulinArea.collider = "s";
+    currentPriceSprite.collider = "s";
+    newsSprite.collider = "s";
+    bloodSugarSprite.collider = "s";  
+
+    
+
+    insulinGamePlaying = false;
+}
+
+function newEmptyBottle() {
+
+    let emptyInsulin = new emptyBottle.Sprite();
+    let randomNumber1 = round(random(0,1));
+
+    if (randomNumber1) {
+        emptyInsulin.x = random(windowWidth/3);
+    } else {
+        emptyInsulin.x = random(2*windowWidth/3, windowWidth);
+    }
+
+    emptyInsulin.y = random(windowHeight/2 + windowHeight/15, windowHeight/2 + windowHeight/6);
     
 }
