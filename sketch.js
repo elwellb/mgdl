@@ -51,7 +51,6 @@ let needleFilled = 0;
 let insulinGamePlaying = false;
 let windowAnimation;
 let needleAnimation;
-
 //preload font and images for sprites
 function preload() {
 
@@ -71,6 +70,7 @@ function setup() {
 
     //set all text to custom font
     textFont(font);
+
 
     //set array of months
     month = 
@@ -100,7 +100,7 @@ function setup() {
     windowAnimation.frameDelay = 0.5;
     windowSprite.width = 206;
     windowSprite.height = 100;
-    windowSprite.collider = "s";
+    windowSprite.collider = "n";
     windowSprite.scale = 4;
     windowSprite.y = windowHeight/2 - windowHeight/3;
     
@@ -112,7 +112,7 @@ function setup() {
     backgroundSprite.x = windowWidth/2;
     backgroundSprite.y = windowHeight/2;
     backgroundSprite.img = "assets/img/BackgroundSprite1.png";
-    backgroundSprite.collider = "s";
+    backgroundSprite.collider = "n";
     backgroundSprite.scale = 4;
 
     //create dateSprite box
@@ -124,7 +124,7 @@ function setup() {
     dateSprite.strokeWeight = 5;
     dateSprite.color = "white";
     dateSprite.textSize = 40;
-    dateSprite.collider = "s";
+    dateSprite.collider = "k";
  
      
     //create ageSprite box
@@ -136,7 +136,7 @@ function setup() {
     ageSprite.strokeWeight = 5;
     ageSprite.color = "white";
     ageSprite.textSize = 40;
-    ageSprite.collider = "s";
+    ageSprite.collider = "k";
  
     //create bloodSugarSprite box
     bloodSugarSprite = new Sprite();
@@ -147,7 +147,7 @@ function setup() {
     bloodSugarSprite.strokeWeight = 5;
     bloodSugarSprite.color = "white";
     bloodSugarSprite.textSize = 40;
-    bloodSugarSprite.collider = "s";
+    bloodSugarSprite.collider = "k";
  
  
     //create newsSprite box
@@ -158,7 +158,7 @@ function setup() {
     newsSprite.y = newsSprite.height/2;
     newsSprite.strokeWeight = 5;
     newsSprite.color = "white";
-    newsSprite.collider = "s";
+    newsSprite.collider = "k";
     newsSprite.textSize = 40;
  
     //create fundsSprite box
@@ -170,7 +170,7 @@ function setup() {
     fundsSprite.strokeWeight = 5;
     fundsSprite.color = "white";
     fundsSprite.textSize = 40;
-    fundsSprite.collider = "s";
+    fundsSprite.collider = "k";
  
     //create currentPriceSprite box
     currentPriceSprite = new Sprite();
@@ -181,14 +181,14 @@ function setup() {
     currentPriceSprite.strokeWeight = 5;
     currentPriceSprite.color = "white";
     currentPriceSprite.textSize = 20;
-    currentPriceSprite.collider = "s";
+    currentPriceSprite.collider = "k";
 
     //create transparent overlay for start game
     startGameSprite = new Sprite();
     startGameSprite.width = windowWidth;
     startGameSprite.height = windowHeight;
     startGameSprite.color = color(125, 125, 125, 200);
-    startGameSprite.collider = "s";
+    startGameSprite.collider = "k";
     startGameSprite.text = "Start";
     startGameSprite.textSize = 40;
 
@@ -244,11 +244,10 @@ function draw() {
     //Insulin Game function
     //make needle follow mouse
     if (insulinGamePlaying == true) {
-        needleSprite.moveTowards(mouse, 0.1);
+        needleSprite.moveTowards(mouse.x, mouse.y);
         needleSprite.rotateTowards(mouse, 0.1, 90);
 
-        //
-       // if (needleSprite.overlaps(insulinBottleSprite)) {
+       if (insulinBottleSprite.overlapping(needleSprite)) {
             if (mouse.pressing()) {
                 needleAnimation.rewind();
                 console.log("Left Mouse");
@@ -262,7 +261,7 @@ function draw() {
             
             }
         }
-  // }
+   }
 
 
 
@@ -440,30 +439,65 @@ function insulinGame() {
     insulinGameBackground.height = windowHeight;
     insulinGameBackground.width = windowWidth;
     insulinGameBackground.color = color(255, 255, 255, 230);
-    insulinGameBackground.collider = "s";
+    insulinGameBackground.collider = "n";
     insulinGameBackground.textSize = 40;
-    insulinGameBackground.layer = 9;
+    //insulinGameBackground.layer = 9;
+    
 
     needleSprite = new Sprite();
     needleSprite.ani = needleAnimation;
-    needleSprite.width = 12;
+    needleSprite.width = 6;
     needleSprite.height = 98;
     needleAnimation.frame = 37;
     needleAnimation.stop();
     needleAnimation.noLoop();
-    needleSprite.layer = 10;
+    //needleSprite.layer = 10;
     needleSprite.debug = true;
-    needleSprite.collider = "k";
+    needleSprite.collider = "d";
     needleSprite.scale = 5;
     needleAnimation.frameDelay = 8;
-    needleSprite.offset.y = 150;
+    needleSprite.offset.y = 200;
+    //needleSprite.mass = 1;
+  
 
-    // insulinBottleSprite = new Sprite();
-    // insulinBottleSprite.img = "assets/img/Insulin.png";
-    // insulinBottleSprite.mirror.y = true;
-    // insulinBottleSprite.x = windowWidth/2;
-    // insulinBottleSprite.y = windowHeight/5;
+    insulinBottleSprite = new Sprite();
+    insulinBottleSprite.img = "assets/img/Insulin.png";
+    insulinBottleSprite.mirror.y = true;
+    insulinBottleSprite.x = windowWidth/2;
+    insulinBottleSprite.y = windowHeight/5;
+    insulinBottleSprite.width = 32;
+    insulinBottleSprite.height = 64;
+    insulinBottleSprite.collider = "s";
+    insulinBottleSprite.scale = 2.5;
+    insulinBottleSprite.debug = true;
 
+
+    //invisible barriers for sprite bottle
+
+    let insulinBarrier = new Sprite([
+        [insulinBottleSprite.x - insulinBottleSprite.width/2, insulinBottleSprite.y - insulinBottleSprite.height/2],
+        [insulinBottleSprite.x - insulinBottleSprite.width/2, insulinBottleSprite.y + insulinBottleSprite.height/2],
+        [insulinBottleSprite.x - insulinBottleSprite.width/3, insulinBottleSprite.y + insulinBottleSprite.height/2],
+        [insulinBottleSprite.x - insulinBottleSprite.width/3, insulinBottleSprite.y + insulinBottleSprite.height/3],
+        [insulinBottleSprite.x + insulinBottleSprite.width/3, insulinBottleSprite.y + insulinBottleSprite.height/3],
+        [insulinBottleSprite.x + insulinBottleSprite.width/3, insulinBottleSprite.y + insulinBottleSprite.height/2],
+        [insulinBottleSprite.x + insulinBottleSprite.width/2, insulinBottleSprite.y + insulinBottleSprite.height/2],
+        [insulinBottleSprite.x + insulinBottleSprite.width/2, insulinBottleSprite.y - insulinBottleSprite.height/2],
+        [insulinBottleSprite.x - insulinBottleSprite.width/2, insulinBottleSprite.y - insulinBottleSprite.height/2],
+    ]);
+    insulinBarrier.color = color(0,0);
+    insulinBarrier.strokeWeight = 0;
+    insulinBarrier.collider = "s";
+
+
+
+    dateSprite.collider = "n";
+    fundsSprite.collider = "n";
+    ageSprite.collider = "n";
+    insulinArea.collider = "n";
+    currentPriceSprite.collider = "n";
+    newsSprite.collider = "n";
+    bloodSugarSprite.collider = "n";    
 
     insulinGamePlaying = true;
     
