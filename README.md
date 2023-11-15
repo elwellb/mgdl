@@ -5,3 +5,5 @@ This experience, made almost entirely through p5Play, is meant to embody what it
 Yes, there is a small amount of absurdism when it comes to how fast the days go by, but that's what its like when your managing insulin all day.
 
 I hope you enjoy! See how long you can last.
+
+(Please zoom out to 67% for the most "enjoyable" experience)
