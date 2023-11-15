@@ -13,25 +13,33 @@ let currentPriceSprite; //Sprite for Current Price Box
 //Changing Variables
 let bloodSugar = 135; //Number for blood sugar
 let news; //Current news array
-let funds = 100; //Current funds player has
+let funds = 1000; //Current funds player has
 let insulinPriceArray = [];; //Current price of insulin array;
 let insulinPrice = 271; //value of current price of insulin for year
-let importantPromptArray;
-let normalPromptArray;
+
 
 //other Sprites
-let dontNeedInsulinSprite;
-let insulinArea;
-let backgroundSprite;
-let windowSprite;
-let insulinGameBackground;
-let needleSprite;
-let insulinBottleSprite;
-let stomachSprite;
-let stomachBarrier;
-let currentAniFrame = 0;
-let popUp;
-let emptyBottle;
+let dontNeedInsulinSprite; //sprite for popup
+let insulinArea; //invisible sprite for clickable area
+let backgroundSprite; //sprite for countertop
+let windowSprite; //sprite for window
+let insulinGameBackground; //sprite for insulin game
+let needleSprite; //sprite for needle
+let insulinBottleSprite; //sprite for insulin bottle
+let stomachSprite; //sprite for stomach
+let stomachBarrier; //sprite for stomach barrier
+let restartSprite; //sprite for restart button
+let popUp; //group for all pop ups
+let emptyBottle; //group for empty bottles
+let ruleSprite1; //sprite for insulin game rule
+let ruleSprite2; //sprite for insulin game rule
+let exitGame; //sprite for close button
+let startGameText1; //text for beginning of game
+let startGameText2; //text for beginning of game
+let startGameText3; //text for beginning of game
+let startGameText4; //text for beginning of game
+let startGameText5; //text for beginning of game
+
 //other
 let font; //Variable for custom font
 let month = []; //Array for each month 
@@ -45,27 +53,51 @@ let newsStart = 0; //beginning value for news substring
 let newsLength = 15; //length of news substring
 let currentNewsString; //substring of current news
 let randomArticleBuffer; //value to hold next article
-let dayInterval;
-let newsInterval;
-let bloodSugarInterval;
-let debtShown = false;
-let insulinPopUp = false;
-let needleFilled = 0;
-let insulinGamePlaying = false;
-let windowAnimation;
-let needleAnimation;
-let bottleNumber;
-let insulinInBottle = 500;
-let randomChoice;
+let dayInterval; //interval for day function
+let newsInterval; //interval for news function
+let bloodSugarInterval; //interval for bloodsugar function
+let insulinPopUp = false; //is the pop up on screen
+let needleFilled = 0; //how much of the needle is filled
+let insulinGamePlaying = false; //is the insulin game currently active
+let windowAnimation; //holds window animation
+let needleAnimation; //holds needle animation
+let bottleNumber = 0; //number of bottles player has bought
+let insulinInBottle = 500; //percentage of insulin in bottle
+let randomChoice; 
+let highCounter = 0; //counts how often you are high in a row
+let lowCounter = 0; //counts how often you are low in a row
+let daysPast = 0; //days since diagnosed
+let checkBGInterval; //interval to check blood sugar to give sound
+let gameGroup; //group for everything to do with the insulin game
+let needleFrame = 37; //initial needle frame
+let insulinPlayed = false; //has the first iteration of the game happened
+let dead = false; //is player dead
+
+//sound variables (self explanitory)
+let lowAlarm;
+let highAlarm;
+let urgentLow;
+let urgentLowSoon;
+
+
+
 //preload font and images for sprites
 function preload() {
 
     //load custom font
     font = loadFont("assets/fonts/Broken Console Regular.TTF");
 
+    //load window animation
     windowAnimation = loadAnimation("assets/anim/windowAni.png", {frameSize: [206, 100], frames: 197});
     
+    //load needle animation
     needleAnimation = loadAnimation("assets/anim/needlePullAni.png", {frameSize: [14, 100], frames: 38});
+
+    //load all sounds
+    lowAlarm = loadSound("assets/sounds/LowAlarm_1.wav");
+    highAlarm = loadSound("assets/sounds/HighAlarm.wav");
+    urgentLow = loadSound("assets/sounds/UrgentLowAlarm.wav");
+    urgentLowSoon = loadSound("assets/sounds/UrgentLowSoon.wav");
 }
 
 
@@ -76,7 +108,6 @@ function setup() {
 
     //set all text to custom font
     textFont(font);
-
 
     //set array of months
     month = 
@@ -110,12 +141,16 @@ function setup() {
     popUp.stroke = "white";
     popUp.textSize = 40;
 
+    //create group for emptyBottles
     emptyBottle = new Group();
     emptyBottle.img = "assets/img/Insulin.png";
     emptyBottle.collider = "n";
-    emptyBottle.debug = true;
     emptyBottle.scale = 0.7;
     emptyBottle.rotation = () => random(360);
+    emptyBottle.layer = 8;
+
+    //create empty group for all Insulin game things
+    gameGroup = new Group();
 
     //create windowSprite and animation
     windowSprite = new Sprite();
@@ -182,9 +217,23 @@ function setup() {
     newsSprite.x = newsSprite.width + bloodSugarSprite.x;
     newsSprite.y = newsSprite.height/2;
     newsSprite.strokeWeight = 5;
-    newsSprite.color = "white";
+    newsSprite.color = "yellow";
     newsSprite.collider = "k";
     newsSprite.textSize = 40;
+    newsSprite.scale.y = 0.7;
+    newsSprite.layer = 5;
+
+    let blankSprite = new Sprite();
+    blankSprite.width = newsSprite.width;
+    blankSprite.height = newsSprite.height;
+    blankSprite.x = newsSprite.x;
+    blankSprite.y = newsSprite.y;
+    blankSprite.stroke = "black";
+    blankSprite.strokeWeight = 5;
+    blankSprite.color = "white";
+    blankSprite.collider = "n";
+    blankSprite.layer = 4
+
  
     //create fundsSprite box
     fundsSprite = new Sprite();
@@ -214,12 +263,65 @@ function setup() {
     startGameSprite.height = windowHeight;
     startGameSprite.color = color(125, 125, 125, 200);
     startGameSprite.collider = "k";
-    startGameSprite.text = "Start";
     startGameSprite.textSize = 40;
 
+    //create text for beginning of game
+    startGameText1 = new Sprite();
+    startGameText1.width = 1;
+    startGameText1.height = 1;
+    startGameText1.y = windowHeight/5;
+    startGameText1.color = color(125, 125, 125, 200);
+    startGameText1.collider = "k";
+    startGameText1.strokeWeight = 0;
+    startGameText1.text = "Just 11 Days before your 11th birthday, you were diagnosed with type 1 diabetes";
+    startGameText1.textSize = 30;
+
+    startGameText2 = new Sprite();
+    startGameText2.width = 1;
+    startGameText2.height = 1;
+    startGameText2.y = 2 * windowHeight/5;
+    startGameText2.color = color(125, 125, 125, 200);
+    startGameText2.collider = "k";
+    startGameText2.strokeWeight = 0;
+    startGameText2.text = "An incurable disease where your body does not produce insulin";
+    startGameText2.textSize = 30;
+
+    startGameText3 = new Sprite();
+    startGameText3.width = 1;
+    startGameText3.height = 1;
+    startGameText3.y = 3 * windowHeight/5;
+    startGameText3.color = color(125, 125, 125, 200);
+    startGameText3.collider = "k";
+    startGameText3.strokeWeight = 0;
+    startGameText3.text = "Now, as a 10 year old, you must survive as long as you can against yourself";
+    startGameText3.textSize = 30;
+
+    startGameText4 = new Sprite();
+    startGameText4.width = 1;
+    startGameText4.height = 1;
+    startGameText4.y = 4 * windowHeight/5;
+    startGameText4.color = color(125, 125, 125, 200);
+    startGameText4.collider = "k";
+    startGameText4.strokeWeight = 0;
+    startGameText4.text = "Your parents will be giving you 1000$ a month for insulin, be sure not to waste it.";
+    startGameText4.textSize = 30;
+
+    startGameText5 = new Sprite();
+    startGameText5.width = 1;
+    startGameText5.height = 1;
+    startGameText5.y = 4.5 * windowHeight/5;
+    startGameText5.color = color(125, 125, 125, 200);
+    startGameText5.collider = "k";
+    startGameText5.strokeWeight = 0;
+    startGameText5.text = "Click anywhere to begin";
+    startGameText5.textSize = 30;
+
+    //create fake area for insulin area to move it
     insulinArea = new Sprite();
     insulinArea.x = -100;
     insulinArea.y = -100;
+    
+    
 }
 
 
@@ -233,6 +335,13 @@ function draw() {
         startGame();
     }
 
+    //if player is dead and hits restart, reload page
+    if (dead) {
+        if (restartSprite.mouse.presses()) {
+            location.reload();
+        }}
+
+    //play window animation backwards
     if (windowAnimation.frame == 0) {
         windowAnimation.play(196);
         windowAnimation.rewind();
@@ -244,8 +353,21 @@ function draw() {
     //change age text
     ageSprite.text = "Age:  " + age;
 
-    //change bloodSugar text
+    //change bloodSugar text and color
     bloodSugarSprite.text = bloodSugar + "   mg/dL";
+    if (bloodSugar >= 350) {
+        bloodSugarSprite.color = "red";
+    } else if (bloodSugar >= 170 && bloodSugar <= 350) {
+        bloodSugarSprite.color = "yellow";
+    } else if (bloodSugar <= 60 && bloodSugar >= 40) {
+        bloodSugarSprite.color = "yellow";
+    } else if (bloodSugar <= 80 && bloodSugar >= 60) {
+        bloodSugarSprite.color = "blue";
+    } else if (bloodSugar <= 40) {
+        bloodSugarSprite.color = "red";
+    } else {
+        bloodSugarSprite.color = "lightgreen";
+    }
 
     //change fund text
     fundsSprite.text = "$   "+ funds;
@@ -253,7 +375,7 @@ function draw() {
     //change currentPrice text
     currentPriceSprite.text = "Current Insulin Price:  $" + insulinPrice;
 
-
+    //when Insulin popup is up, click to remove and set to false
     if (insulinPopUp == true) {
     if (dontNeedInsulinSprite.mouse.presses()) {
         insulinPopUp = false;
@@ -261,6 +383,7 @@ function draw() {
     }
     }
 
+    //when any popup is clicked it is removed
     if (popUp.mouse.presses()) {
         popUp.removeAll();
     }
@@ -275,60 +398,79 @@ function draw() {
     if (insulinGamePlaying == true) {
         needleSprite.moveTowards(mouse.x, mouse.y);
         needleSprite.rotateTowards(mouse, 0.1, 90);
-        insulinBarrier.text = round(insulinInBottle/5) + "%"
 
+        //add changing text to bottle
+        insulinBarrier.text = round(insulinInBottle/5) + "%";
+
+        //if needle is in bottle...
        if (insulinBottleSprite.overlapping(needleSprite)) {
+
+            //Left click: pull from bottle
             if (mouse.pressing() && insulinInBottle > 0) {
                 needleAnimation.rewind();
                 if (needleAnimation.frame != 0) {
                 needleFilled++;
                 insulinInBottle--;
-                console.log(needleFilled);
                 }
-            } else if (mouse.pressing("right") && needleAnimation.frame != 37 && insulinInBottle < 500) {
+            }
+
+            //Right Click: Push back into bottle
+            else if (mouse.pressing("right") && needleAnimation.frame != 37 && insulinInBottle < 500) {
                 needleAnimation.play();
                 needleFilled--;
                 insulinInBottle++;
             } 
+
+            //Otherwise stop animation
             else {
             needleAnimation.stop();
             }
-            }
+        }
 
+        //if needle is in stomach and pushing, decrease blood sugar
         else if ((stomachSprite.overlapping(needleSprite) % 10 == 1) && mouse.pressing("right") && (needleAnimation.frame != 37)) {
             needleAnimation.play();
             bloodSugarDecrease();
             needleFilled--;
         }
+
+        //if needle is in air, send insulin to the shadow realm
         else if (mouse.pressing("right")) {
                 needleAnimation.play();
                 if (needleAnimation.frame != 37) {
                     needleFilled--;
-                    console.log(needleFilled);
                 }
                 if (insulinBottleSprite.overlapping(needleSprite)) {
                     insulinInBottle++;
                 }
-        
-            } else {
-            needleAnimation.stop();
-            }
+        } 
 
-            if (insulinInBottle < 0) {
-                
-                
-                if (needleAnimation.frame == 37) {
+        //otherwise stop animation
+        else {
+            needleAnimation.stop();
+        }
+
+        //if bottle and needle are empty, reset everything and buy new bottle
+        if (insulinInBottle <= 0 && needleAnimation.frame == 37) {
+                needlefilled =  0;
                 payInsulin();
                 insulinInBottle = 500;
                 newEmptyBottle();
                 closeGame();
-            }
-            }
-            
-            }
+        }
 
-        //if (bloodSugar >= 400) 
-            
+        //if player clicks close, close insulin game
+        if (exitGame.mouse.presses()) {
+            closeGame();
+        }
+    }
+
+    //if bloodSugar is too low, game over
+    if (bloodSugar < 5) {
+        gameOver();
+    }
+
+       
 }
 
 
@@ -337,10 +479,11 @@ function draw() {
 function chooseDay() {
     //increase day
     whatDay++;
-
+    daysPast++;
     //if day is higher than max number of days in the month, reset to 1 and increase month
     if (whatDay > day[whatMonth]) {
         
+        funds += 1000;
         //increase month
         whatMonth++;
 
@@ -428,6 +571,7 @@ function payInsulin() {
 
     funds -= insulinPrice;
 
+    //if funds too low, give player a pop up
     if (funds <= insulinPrice) {
         fundsSprite.textColor = "red";
         let debtPopUp = new popUp.Sprite();
@@ -441,8 +585,15 @@ function payInsulin() {
 //starts the game
 function startGame() {
 
+    //remove overlay
     startGameSprite.remove();
+    startGameText1.remove();
+    startGameText2.remove();
+    startGameText3.remove();
+    startGameText4.remove();
+    startGameText5.remove();
 
+    //create insulinArea
     insulinArea = new Sprite();
     insulinArea.x = windowWidth/2 + 650;
     insulinArea.y = windowHeight/2 + 100;
@@ -451,10 +602,11 @@ function startGame() {
     insulinArea.strokeWeight = 0;
     insulinArea.collider = "s";
 
-
+    //start playing window Animation
     windowAnimation.play(196);
     windowAnimation.rewind();
 
+    //start all the intervals
     startIntervals();
 
 }
@@ -464,66 +616,77 @@ function startIntervals() {
 
     //run chooseDay function every 3.3 second
     dayInterval = setInterval(chooseDay, 3300);
+
     //run changeNews function every 1/4 second
     newsInterval = setInterval(changeNews, 250);
 
     //run bloodSugarIncrease function every 1/2 second
     bloodSugarInterval = setInterval(bloodSugarIncrease, 500);
 
+    //run checkBG every 7 seconds
+    checkBGInterval = setInterval(checkBG, 7000);
+
 }
 
+//removes all intervals
 function stopIntervals() {
 
     clearInterval(dayInterval);
     clearInterval(newsInterval);
     clearInterval(bloodSugarInterval);
-
+    clearInterval(checkBGInterval);
 }
 
 function insulinClicked() {
 
+    //if popup is not there
     if (insulinPopUp == false) {
+        //if bg is under 170, show popup
         if(bloodSugar <= 170) {
             dontNeedInsulinSprite = new popUp.Sprite();
             dontNeedInsulinSprite.text = "I don't think I need that right now";
-            insulinPopUp = true;
+            insulinPopUp = true;  
         }
-    }
 
-    if (insulinPopUp == false && bloodSugar > 170) {
-        insulinGame();
+        //if game has already been played  
+        else if (insulinPlayed) {
+            reopenGame();
+        }
+
+        //if first time
+        else {
+            insulinGame();
+        }
     }
 }
 
+//creates assests for insulin game
 function insulinGame() {
 
-
-    insulinGameBackground = new Sprite();
+    //create background
+    insulinGameBackground = new gameGroup.Sprite();
     insulinGameBackground.height = windowHeight;
     insulinGameBackground.width = windowWidth;
     insulinGameBackground.color = color(255, 255, 255, 230);
     insulinGameBackground.collider = "n";
-    insulinGameBackground.textSize = 40;
-    //insulinGameBackground.layer = 9;
+    insulinGameBackground.layer = 9;
     
-
-    needleSprite = new Sprite();
+    //create needle
+    needleSprite = new gameGroup.Sprite();
     needleSprite.ani = needleAnimation;
     needleSprite.width = 6;
-    needleSprite.height = 98;
-    needleAnimation.frame = 37;
+    needleSprite.height = 90;
+    needleAnimation.frame = needleFrame;
     needleAnimation.stop();
     needleAnimation.noLoop();
-    //needleSprite.layer = 10;
     needleSprite.debug = true;
     needleSprite.collider = "d";
     needleSprite.scale = 5;
     needleAnimation.frameDelay = 8;
     needleSprite.offset.y = 200;
-    //needleSprite.mass = 1;
   
-
-    insulinBottleSprite = new Sprite();
+    //create insulin bottle
+    insulinBottleSprite = new gameGroup.Sprite();
     insulinBottleSprite.img = "assets/img/Insulin.png";
     insulinBottleSprite.mirror.y = true;
     insulinBottleSprite.x = windowWidth/2;
@@ -537,7 +700,7 @@ function insulinGame() {
 
     //invisible barriers for sprite bottle
 
-    insulinBarrier = new Sprite([
+    insulinBarrier = new gameGroup.Sprite([
         [insulinBottleSprite.x - insulinBottleSprite.width/2, insulinBottleSprite.y - insulinBottleSprite.height/2],
         [insulinBottleSprite.x - insulinBottleSprite.width/2, insulinBottleSprite.y + insulinBottleSprite.height/2],
         [insulinBottleSprite.x - insulinBottleSprite.width/3, insulinBottleSprite.y + insulinBottleSprite.height/2],
@@ -553,14 +716,16 @@ function insulinGame() {
     insulinBarrier.collider = "s";
     insulinBarrier.textSize = 20;
 
-    stomachSprite = new Sprite();
+    //create stomach
+    stomachSprite = new gameGroup.Sprite();
     stomachSprite.diameter = windowWidth;
     stomachSprite.x = windowWidth/2;
     stomachSprite.y = windowHeight*1.9;
     stomachSprite.collider = "s";
     stomachSprite.color = "bisque";
 
-    stomachBarrier = new Sprite();
+    //create internal stomach barrier
+    stomachBarrier = new gameGroup.Sprite();
     stomachBarrier.diameter = stomachSprite.diameter - stomachSprite.diameter/50;
     stomachBarrier.x = stomachSprite.x;
     stomachBarrier.y = stomachSprite.y;
@@ -569,6 +734,40 @@ function insulinGame() {
     // stomachBarrier.debug = true;
     stomachBarrier.collider = "s";
 
+    //create close button
+    exitGame = new gameGroup.Sprite();
+    exitGame.width = windowWidth/5;
+    exitGame.height = windowHeight/7;
+    exitGame.x = exitGame.width/2;
+    exitGame.y = exitGame.height/2;
+    exitGame.color = color(100, 100, 100, 190);
+    exitGame.strokeWeight = 3;
+    exitGame.text = "Close";
+    exitGame.textSize = 40;
+    exitGame.textColor = "white";
+    exitGame.collider = "s";
+
+    //create left rule
+    ruleSprite1 = new gameGroup.Sprite();
+    ruleSprite1.color = color(0,0);
+    ruleSprite1.text = "Left Click to Pull";
+    ruleSprite1.strokeWeight = 0;
+    ruleSprite1.textSize = 40;
+    ruleSprite1.x = windowWidth/4
+    ruleSprite1.y = 5*windowHeight/6;
+    ruleSprite1.collider = "n";
+
+    //create right rule
+    ruleSprite2 = new gameGroup.Sprite();
+    ruleSprite2.color = color(0,0);
+    ruleSprite2.text = "Right Click to Push";
+    ruleSprite2.strokeWeight = 0;
+    ruleSprite2.textSize = 40;
+    ruleSprite2.x = 3*windowWidth/4
+    ruleSprite2.y = 5*windowHeight/6;
+    ruleSprite2.collider = "n";
+
+    //set all other sprites to no collider
     dateSprite.collider = "n";
     fundsSprite.collider = "n";
     ageSprite.collider = "n";
@@ -577,19 +776,22 @@ function insulinGame() {
     newsSprite.collider = "n";
     bloodSugarSprite.collider = "n";    
 
+    //set game playing to true
     insulinGamePlaying = true;
+    insulinPlayed = true;
     
 }
 
+//when game closes run this
 function closeGame() {
 
-    insulinBarrier.remove();
-    needleSprite.remove();
-    insulinBottleSprite.remove();
-    stomachSprite.remove();
-    stomachBarrier.remove();
-    insulinGameBackground.remove();
+    //set all game things invisible
+    gameGroup.visible = false;
+    needleAnimation.stop();
+    needleSprite.x = insulinArea.x;
+    needleSprite.y = insulinArea.y
 
+    //revert all colliders
     dateSprite.collider = "s";
     fundsSprite.collider = "s";
     ageSprite.collider = "s";
@@ -597,12 +799,12 @@ function closeGame() {
     currentPriceSprite.collider = "s";
     newsSprite.collider = "s";
     bloodSugarSprite.collider = "s";  
-
     
-
+    //not playing anymore
     insulinGamePlaying = false;
 }
 
+//when a bottle runs out of insulin, add sprite to game
 function newEmptyBottle() {
 
     let emptyInsulin = new emptyBottle.Sprite();
@@ -615,5 +817,125 @@ function newEmptyBottle() {
     }
 
     emptyInsulin.y = random(windowHeight/2 + windowHeight/15, windowHeight/2 + windowHeight/6);
+    emptyInsulin.strokeWeight = 0;
+    emptyInsulin.layer = 8;
+    bottleNumber++;
     
+}
+
+//checks BG to see what sound to play
+function checkBG() {
+
+    if (bloodSugar >= 350) {
+        highAlarm.play();
+        highCounter++;
+        lowCounter = 0;
+    } else if (bloodSugar <= 60 && bloodSugar >= 40) {
+        urgentLowSoon.play();
+        highCounter = 0;
+        lowCounter = 0;
+    } else if (bloodSugar <= 80 && bloodSugar >= 60) {
+        lowAlarm.play();
+        highCounter = 0;
+    } else if (bloodSugar <= 40) {
+        urgentLow.play();
+        lowCounter++;
+        highCounter = 0;
+    } else {
+        highCounter = 0;
+        lowCounter = 0;
+    }
+
+    //if high or low for too long, game over
+    if (highCounter >= 7 || lowCounter >= 2) {
+        gameOver();
+    }
+}
+
+//ending of game
+function gameOver() {
+    //stop all intervals
+    stopIntervals();
+
+    //close game if its playing
+    closeGame();
+
+    dead = true;
+
+    //remove all groups;
+    gameGroup.removeAll();
+    emptyBottle.removeAll();
+    popUp.removeAll();
+
+    //new background
+    let gameOverBackground = new Sprite();
+    gameOverBackground.height = windowHeight;
+    gameOverBackground.width = windowWidth;
+    gameOverBackground.color = "red";
+    gameOverBackground.collider = "n";
+
+    //tells you how you died
+    let gameOverText = new Sprite();
+    gameOverText.color = "black";
+    gameOverText.textColor = "white";
+    gameOverText.textSize = 30;
+    gameOverText.width = windowWidth;
+    gameOverText.height = windowHeight/4
+    gameOverText.x = windowWidth/2
+    gameOverText.y = windowHeight/4;
+    gameOverText.collider = "n";
+    if (highCounter >= 6) {
+        gameOverText.text = "Your blood sugar has been high for too long. You have died from Diabetic Ketoacidosis.";
+    }
+    else if (lowCounter >= 2) {
+        gameOverText.text = "Your blood sugar has been too low for too long. You have died from Hypoglycemia.";
+    } else if (bloodSugar <= 5) {
+        gameOverText.text = "Your blood sugar has been gone too low. You have died from Hypoglycemia.";
+    }
+
+    //stats from the game
+    let stats = new Sprite();
+    stats.x = windowWidth/2;
+    stats.y = 2*windowHeight/3;
+    stats.width = windowWidth/2;
+    stats.height = windowHeight/3;
+    stats.color = "black";
+    stats.textColor = "white";
+    stats.textSize = 25;
+    stats.text = "Days with Diabetes: " + daysPast + "    # of Insulin Bottles bought: " + bottleNumber;
+    stats.collider = "n";
+
+    //restart button
+    restartSprite = new Sprite();
+    restartSprite.y = stats.y + windowHeight/4;
+    restartSprite.x = windowWidth/2;
+    restartSprite.width = windowWidth/3;
+    restartSprite.height = windowHeight/5;
+    restartSprite.color = "darkred"
+    restartSprite.text = "Restart";
+    restartSprite.textColor = "White";
+    restartSprite.textSize = 30;    
+    restartSprite.collider = "s";
+}
+
+//when insulin game reopens
+function reopenGame() {
+
+    //make everything visible
+    gameGroup.visible = true;
+    needleSprite.collider = "d";
+    insulinBottleSprite.collider = "s";
+    stomachSprite.collider = "s";
+
+    //set colliders to none
+    dateSprite.collider = "n";
+    fundsSprite.collider = "n";
+    ageSprite.collider = "n";
+    insulinArea.collider = "n";
+    currentPriceSprite.collider = "n";
+    newsSprite.collider = "n";
+    bloodSugarSprite.collider = "n";  
+    
+
+    insulinGamePlaying = true;
 }
