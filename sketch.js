@@ -85,7 +85,7 @@ let urgentLowSoon;
 function preload() {
 
     //load custom font
-    font = loadFont("assets/fonts/Broken Console Regular.TTF");
+    font = loadFont("assets/fonts/BrokenConsoleRegular.ttf");
 
     //load window animation
     windowAnimation = loadAnimation("assets/anim/windowAni.png", {frameSize: [206, 100], frames: 197});
