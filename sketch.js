@@ -104,7 +104,7 @@ function preload() {
 function setup() {
 
     //create fullscreen canvas
-    let canvas = new Canvas("fullscreen");
+    createCanvas(1920, 1080);
 
     //set all text to custom font
     textFont(font);
@@ -131,10 +131,10 @@ function setup() {
 
     //create Group for popups
     popUp = new Group();
-    popUp.width = windowWidth/2;
-    popUp.height = windowHeight/4;
-    popUp.x = windowWidth/2;
-    popUp.y = windowHeight/3;
+    popUp.width = width/2;
+    popUp.height = height/4;
+    popUp.x = width/2;
+    popUp.y = height/3;
     popUp.color = color(125, 125, 125, 200);
     popUp.collider = "s";
     popUp.strokeWeight = 4;
@@ -162,23 +162,23 @@ function setup() {
     windowSprite.height = 100;
     windowSprite.collider = "n";
     windowSprite.scale = 4;
-    windowSprite.y = windowHeight/2 - windowHeight/3;
+    windowSprite.y = height/2 - 400;
     
 
     //create main background sprite
     backgroundSprite = new Sprite();
-    backgroundSprite.width = windowWidth;
-    backgroundSprite.height = windowHeight;
-    backgroundSprite.x = windowWidth/2;
-    backgroundSprite.y = windowHeight/2;
+    backgroundSprite.width = width;
+    backgroundSprite.height = height;
+    backgroundSprite.x = width/2;
+    backgroundSprite.y = height/2 - height/9;
     backgroundSprite.img = "assets/img/BackgroundSprite1.png";
     backgroundSprite.collider = "n";
     backgroundSprite.scale = 4;
 
     //create dateSprite box
     dateSprite = new Sprite();
-    dateSprite.width = windowWidth/4;
-    dateSprite.height = windowHeight/12;
+    dateSprite.width = width/4;
+    dateSprite.height = height/12;
     dateSprite.x = dateSprite.width/2;
     dateSprite.y = dateSprite.height/2;
     dateSprite.strokeWeight = 5;
@@ -189,8 +189,8 @@ function setup() {
      
     //create ageSprite box
     ageSprite = new Sprite();
-    ageSprite.width = windowWidth/4;
-    ageSprite.height = windowHeight/16;
+    ageSprite.width = width/4;
+    ageSprite.height = height/16;
     ageSprite.x = ageSprite.width/2;
     ageSprite.y = dateSprite.height + ageSprite.height/2;
     ageSprite.strokeWeight = 5;
@@ -200,8 +200,8 @@ function setup() {
  
     //create bloodSugarSprite box
     bloodSugarSprite = new Sprite();
-    bloodSugarSprite.width = windowWidth/4;
-    bloodSugarSprite.height = windowHeight/12;
+    bloodSugarSprite.width = width/4;
+    bloodSugarSprite.height = height/12;
     bloodSugarSprite.x = bloodSugarSprite.width/2 + dateSprite.width;
     bloodSugarSprite.y = bloodSugarSprite.height/2;
     bloodSugarSprite.strokeWeight = 5;
@@ -212,8 +212,8 @@ function setup() {
  
     //create newsSprite box
     newsSprite = new Sprite();
-    newsSprite.width = windowWidth/4;
-    newsSprite.height = windowHeight/12;
+    newsSprite.width = width/4;
+    newsSprite.height = height/12;
     newsSprite.x = newsSprite.width + bloodSugarSprite.x;
     newsSprite.y = newsSprite.height/2;
     newsSprite.strokeWeight = 5;
@@ -237,8 +237,8 @@ function setup() {
  
     //create fundsSprite box
     fundsSprite = new Sprite();
-    fundsSprite.width = windowWidth/4;
-    fundsSprite.height = windowHeight/12;
+    fundsSprite.width = width/4;
+    fundsSprite.height = height/12;
     fundsSprite.x = fundsSprite.width + newsSprite.x;
     fundsSprite.y = fundsSprite.height/2;
     fundsSprite.strokeWeight = 5;
@@ -248,9 +248,9 @@ function setup() {
  
     //create currentPriceSprite box
     currentPriceSprite = new Sprite();
-    currentPriceSprite.width = windowWidth/4;
-    currentPriceSprite.height = windowHeight/16;
-    currentPriceSprite.x = windowWidth - currentPriceSprite.width/2;
+    currentPriceSprite.width = width/4;
+    currentPriceSprite.height = height/16;
+    currentPriceSprite.x = width - currentPriceSprite.width/2;
     currentPriceSprite.y = fundsSprite.height + currentPriceSprite.height/2;
     currentPriceSprite.strokeWeight = 5;
     currentPriceSprite.color = "white";
@@ -259,8 +259,8 @@ function setup() {
 
     //create transparent overlay for start game
     startGameSprite = new Sprite();
-    startGameSprite.width = windowWidth;
-    startGameSprite.height = windowHeight;
+    startGameSprite.width = width;
+    startGameSprite.height = height;
     startGameSprite.color = color(125, 125, 125, 200);
     startGameSprite.collider = "k";
     startGameSprite.textSize = 40;
@@ -269,7 +269,7 @@ function setup() {
     startGameText1 = new Sprite();
     startGameText1.width = 1;
     startGameText1.height = 1;
-    startGameText1.y = windowHeight/5;
+    startGameText1.y = height/6;
     startGameText1.color = color(125, 125, 125, 200);
     startGameText1.collider = "k";
     startGameText1.strokeWeight = 0;
@@ -279,7 +279,7 @@ function setup() {
     startGameText2 = new Sprite();
     startGameText2.width = 1;
     startGameText2.height = 1;
-    startGameText2.y = 2 * windowHeight/5;
+    startGameText2.y = 2 * height/6;
     startGameText2.color = color(125, 125, 125, 200);
     startGameText2.collider = "k";
     startGameText2.strokeWeight = 0;
@@ -289,7 +289,7 @@ function setup() {
     startGameText3 = new Sprite();
     startGameText3.width = 1;
     startGameText3.height = 1;
-    startGameText3.y = 3 * windowHeight/5;
+    startGameText3.y = 3 * height/6;
     startGameText3.color = color(125, 125, 125, 200);
     startGameText3.collider = "k";
     startGameText3.strokeWeight = 0;
@@ -299,7 +299,7 @@ function setup() {
     startGameText4 = new Sprite();
     startGameText4.width = 1;
     startGameText4.height = 1;
-    startGameText4.y = 4 * windowHeight/5;
+    startGameText4.y = 4 * height/6;
     startGameText4.color = color(125, 125, 125, 200);
     startGameText4.collider = "k";
     startGameText4.strokeWeight = 0;
@@ -309,7 +309,7 @@ function setup() {
     startGameText5 = new Sprite();
     startGameText5.width = 1;
     startGameText5.height = 1;
-    startGameText5.y = 4.5 * windowHeight/5;
+    startGameText5.y = 4.5 * height/6;
     startGameText5.color = color(125, 125, 125, 200);
     startGameText5.collider = "k";
     startGameText5.strokeWeight = 0;
@@ -469,8 +469,7 @@ function draw() {
     if (bloodSugar < 5) {
         gameOver();
     }
-
-       
+     
 }
 
 
@@ -577,7 +576,7 @@ function payInsulin() {
         let debtPopUp = new popUp.Sprite();
         debtPopUp.text = "You will not be able to afford another bottle of Insulin until next month. Ration well."
         debtPopUp.textSize = 20;
-        debtPopUp.width = windowWidth/1.5;
+        debtPopUp.width = width/1.5;
     }
 
 }
@@ -595,8 +594,8 @@ function startGame() {
 
     //create insulinArea
     insulinArea = new Sprite();
-    insulinArea.x = windowWidth/2 + 650;
-    insulinArea.y = windowHeight/2 + 100;
+    insulinArea.x = width/2 + 650;
+    insulinArea.y = height/2;
     insulinArea.scale = 3;
     insulinArea.color = color(0,0);
     insulinArea.strokeWeight = 0;
@@ -665,8 +664,8 @@ function insulinGame() {
 
     //create background
     insulinGameBackground = new gameGroup.Sprite();
-    insulinGameBackground.height = windowHeight;
-    insulinGameBackground.width = windowWidth;
+    insulinGameBackground.height = height;
+    insulinGameBackground.width = width;
     insulinGameBackground.color = color(255, 255, 255, 230);
     insulinGameBackground.collider = "n";
     insulinGameBackground.layer = 9;
@@ -679,7 +678,7 @@ function insulinGame() {
     needleAnimation.frame = needleFrame;
     needleAnimation.stop();
     needleAnimation.noLoop();
-    needleSprite.debug = true;
+    //needleSprite.debug = true;
     needleSprite.collider = "d";
     needleSprite.scale = 5;
     needleAnimation.frameDelay = 8;
@@ -689,13 +688,13 @@ function insulinGame() {
     insulinBottleSprite = new gameGroup.Sprite();
     insulinBottleSprite.img = "assets/img/Insulin.png";
     insulinBottleSprite.mirror.y = true;
-    insulinBottleSprite.x = windowWidth/2;
-    insulinBottleSprite.y = windowHeight/5;
+    insulinBottleSprite.x = width/2;
+    insulinBottleSprite.y = height/5;
     insulinBottleSprite.width = 32;
     insulinBottleSprite.height = 64;
     insulinBottleSprite.collider = "s";
     insulinBottleSprite.scale = 2.5;
-    insulinBottleSprite.debug = true;
+    //insulinBottleSprite.debug = true;
 
 
     //invisible barriers for sprite bottle
@@ -718,9 +717,9 @@ function insulinGame() {
 
     //create stomach
     stomachSprite = new gameGroup.Sprite();
-    stomachSprite.diameter = windowWidth;
-    stomachSprite.x = windowWidth/2;
-    stomachSprite.y = windowHeight*1.9;
+    stomachSprite.diameter = width;
+    stomachSprite.x = width/2;
+    stomachSprite.y = height*1.6;
     stomachSprite.collider = "s";
     stomachSprite.color = "bisque";
 
@@ -731,13 +730,12 @@ function insulinGame() {
     stomachBarrier.y = stomachSprite.y;
     stomachBarrier.color = color(0,0);
     stomachBarrier.strokeWeight = 0;
-    // stomachBarrier.debug = true;
     stomachBarrier.collider = "s";
 
     //create close button
     exitGame = new gameGroup.Sprite();
-    exitGame.width = windowWidth/5;
-    exitGame.height = windowHeight/7;
+    exitGame.width = width/5;
+    exitGame.height = height/7;
     exitGame.x = exitGame.width/2;
     exitGame.y = exitGame.height/2;
     exitGame.color = color(100, 100, 100, 190);
@@ -753,8 +751,8 @@ function insulinGame() {
     ruleSprite1.text = "Left Click to Pull";
     ruleSprite1.strokeWeight = 0;
     ruleSprite1.textSize = 40;
-    ruleSprite1.x = windowWidth/4
-    ruleSprite1.y = 5*windowHeight/6;
+    ruleSprite1.x = width/4
+    ruleSprite1.y = 2*height/3;
     ruleSprite1.collider = "n";
 
     //create right rule
@@ -763,8 +761,8 @@ function insulinGame() {
     ruleSprite2.text = "Right Click to Push";
     ruleSprite2.strokeWeight = 0;
     ruleSprite2.textSize = 40;
-    ruleSprite2.x = 3*windowWidth/4
-    ruleSprite2.y = 5*windowHeight/6;
+    ruleSprite2.x = 3*width/4
+    ruleSprite2.y = 2*height/3;
     ruleSprite2.collider = "n";
 
     //set all other sprites to no collider
@@ -811,12 +809,12 @@ function newEmptyBottle() {
     let randomNumber1 = round(random(0,1));
 
     if (randomNumber1) {
-        emptyInsulin.x = random(windowWidth/3);
+        emptyInsulin.x = random(width/3);
     } else {
-        emptyInsulin.x = random(2*windowWidth/3, windowWidth);
+        emptyInsulin.x = random(2*width/3, width);
     }
 
-    emptyInsulin.y = random(windowHeight/2 + windowHeight/15, windowHeight/2 + windowHeight/6);
+    emptyInsulin.y = random(height/2 - height/20, height/2 + height/24);
     emptyInsulin.strokeWeight = 0;
     emptyInsulin.layer = 8;
     bottleNumber++;
@@ -869,8 +867,8 @@ function gameOver() {
 
     //new background
     let gameOverBackground = new Sprite();
-    gameOverBackground.height = windowHeight;
-    gameOverBackground.width = windowWidth;
+    gameOverBackground.height = height;
+    gameOverBackground.width = width;
     gameOverBackground.color = "red";
     gameOverBackground.collider = "n";
 
@@ -879,10 +877,10 @@ function gameOver() {
     gameOverText.color = "black";
     gameOverText.textColor = "white";
     gameOverText.textSize = 30;
-    gameOverText.width = windowWidth;
-    gameOverText.height = windowHeight/4
-    gameOverText.x = windowWidth/2
-    gameOverText.y = windowHeight/4;
+    gameOverText.width = width;
+    gameOverText.height = height/5;
+    gameOverText.x = width/2
+    gameOverText.y = height/4;
     gameOverText.collider = "n";
     if (highCounter >= 6) {
         gameOverText.text = "Your blood sugar has been high for too long. You have died from Diabetic Ketoacidosis.";
@@ -895,10 +893,10 @@ function gameOver() {
 
     //stats from the game
     let stats = new Sprite();
-    stats.x = windowWidth/2;
-    stats.y = 2*windowHeight/3;
-    stats.width = windowWidth/2;
-    stats.height = windowHeight/3;
+    stats.x = width/2;
+    stats.y = height/2;
+    stats.width = width/2;
+    stats.height = height/4;
     stats.color = "black";
     stats.textColor = "white";
     stats.textSize = 25;
@@ -907,10 +905,10 @@ function gameOver() {
 
     //restart button
     restartSprite = new Sprite();
-    restartSprite.y = stats.y + windowHeight/4;
-    restartSprite.x = windowWidth/2;
-    restartSprite.width = windowWidth/3;
-    restartSprite.height = windowHeight/5;
+    restartSprite.y = stats.y + height/4.5;
+    restartSprite.x = width/2;
+    restartSprite.width = width/3;
+    restartSprite.height = height/5;
     restartSprite.color = "darkred"
     restartSprite.text = "Restart";
     restartSprite.textColor = "White";
