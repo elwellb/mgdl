@@ -6,4 +6,4 @@ Yes, there is a small amount of absurdism when it comes to how fast the days go 
 
 I hope you enjoy! See how long you can last.
 
-(Please zoom out to 67% for the most "enjoyable" experience)
+(Please readjust your browser zoom to make the experience fullscreen)
